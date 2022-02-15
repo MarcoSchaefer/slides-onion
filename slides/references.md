@@ -1,13 +1,19 @@
 # References
 
-[Available . . . or not?](https://cloud.google.com/blog/products/gcp/available-or-not-that-is-the-question-cre-life-lessons)
+[Domain modeling with FP - Scott Wlaschin](https://pt.slideshare.net/ScottWlaschin/domain-modeling-with-fp-ddd-europe-2020)
 
-[SRE fundamentals](https://cloud.google.com/blog/products/devops-sre/sre-fundamentals-slis-slas-and-slos)
+[Onion Architecture explained - Building maintainable software](https://marcoatschaefer.medium.com/)
 
-[Produciton-Ready Microservices](https://www.oreilly.com/library/view/production-ready-microservices/9781491965962/)
 
-[SRE Book](https://sre.google/books/)
+# Bibliography
 
-[Example prometheus Node.js](https://github.com/RisingStack/example-prometheus-nodejs/tree/c042e0c2fd736005bcfcda183cd1857fd9704b0c)
+[Domain-Driven Design - Eric Evans](https://www.amazon.com.br/Domain-Driven-Design-Eric-Evans/dp/8550800651)
 
-[A circular meta reference](https://github.com/abbudao/slides-monitoring/)
+[Patterns of Enterprise Application Architecture - Martin Fowler](https://www.amazon.com.br/Patterns-Enterprise-Application-Architecture-Martin/dp/0321127420)
+
+
+# Useful links
+
+[Glossary](https://martinfowler.com/tags/index.html)
+
+[Catalog of patterns - Martin Fowler](https://martinfowler.com/eaaCatalog/index.html)

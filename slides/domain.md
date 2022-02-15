@@ -1,4 +1,4 @@
-# Onion Architecture
+# Domain Layer
 
 
 ## TOC
@@ -7,139 +7,112 @@
 
 3.2 Domain Model
 
-3.3 Domain Service
-
-3.4 Value Objects
+3.3 Value Objects
 
 
 ## 3.1 DDD
 
 
-<!-- .slide: data-background="slides/assets/cockpit.jpg"  --> 
-
-
-<!-- .slide: data-background="slides/assets/cockpit_black.png"  --> 
-
-
-## 1.2 Availability overview
+<!-- .slide: data-background-color="white"  --> 
+<img style="background-image: white;" src="slides/assets/ddd.jpeg" />
 
 Note:
-Easier than defining an available system, it's defining an unavailable system; an unavailable system cannot perform its function and will fail by default.
-
-Availability defines whether a system can fulfill its intended function at a point in time. 
-
-In addition to being used as a reporting tool, the historical availability measurement can also describe the probability that your system will perform as expected in the future.
+Before diving into the Domain Layer, we need to define what we understand for "Domain".
+Domain is: Knowledge about a particular industry or business. In our case, our domain knowledge regards investments and the financial industry.
+Domain-driven design (DDD) is a software design approach that aims to model software in a way that matches a domain, according to it's experts.
 
 
-Question: How often is the system available?
-
-
-### Observation
-
-When you visit shakespeare.com, you normally get back the <b>200 OK</b> status code and an HTML blob. 
-
-Very rarely, you see a <b>500 Internal Server</b> error or a connection failure.
-
-
-### Hypothesis
-If "availability" is the percentage of requests per day that return 200 OK, the system will be 99.7% available.
-
-
-### Measure
-Tail the response logs of the Shakespeare service’s web servers and dump them into a logs-processing system.
-
-
-### Analyze
-Take a daily availability measurement as the percentage of 200 OK responses vs. the total number of requests.
-
-
-### Interpret
-After seven days, there’s a minimum of 99.7% availability on any given day.
-
-
-<!-- .slide: data-background="slides/assets/shakespare.png"  --> 
-
-
-### All good?
+### Ubiquitous language
 
 Note:
-Well, we happily report to our boss, hey, our service on its worst day had 99.7% of availability. And you receive your boss praise!
-
-On the next day, your boss comes to you furious, that users are complaining about not being able to search for their favorite book.
-
-
-### Availability definition problems
-You've made the classic mistake of basing your definition of availability on a measurement that does not match user expectations or business objectives.
+One of the most important DDD guidelines is that we should have an ubiquitous language, i.e., domain experts and developers should use the same terms and entities.
+Domain aware names like Position, Operation, Security, and so on, they must mean the exactly same thing in the domain rules and in the software code.
 
 
-### It's all about the business 
+*Domain experts should object to terms or structures that are awkward or inadequate to convey domain understanding; developers should watch for ambiguity or inconsistency that will trip up design.*
 
-Note:
-We should have picked a metric that defines what our business is trying to achieve.
-
-As we sell books, querying for a book seems like a good candidate to measure on, because is on par with what feels to our users that our system is available.
-
-We can define them, that queries taking up to 5 seconds are considered within the acceptable range.
+Eric Evans
 
 
-## 1.3 SLO, SLA, and SLI
+<img style="background-image: white;" src="slides/assets/ul-1.png" />
 
 
-### SLO
-The numerical target for system availability, defined by our business needs.
-
-Note: 
-SRE begins with the idea that a prerequisite to success is availability.
-
-We should define what is the target system availability so we can spend resources accordingly, this is a business decision.
-
-The more available we want a system to be, the more we will have diminishing returns in trying to do so. And we will always have a cost of opportunity involved in doing it.
-
-
-### SLA
-The agreement you make to those who depend on your service.
+<img style="background-image: white;" src="slides/assets/ul-2.png" />
 
 Note:
-A promise to someone using your service that its availability SLO should meet a certain level over a certain period, and if it fails to do so then some kind of penalty will take place.
+Both developers and domain experts should be able to use and understand the exact same terms regarding domain knowledge and implementation.
 
 
-### SLI
-Measurements of the real numbers of your performance.
-
-Note:
-This is essentially how we are doing and how we measure if we meet our SLA.
+<img style="background-image: white;" src="slides/assets/ul-3.png" />
 
 
-## 1.4 The components of good monitoring
+<img style="background-image: white;" src="slides/assets/ul-4.png" />
 
 
-### 1. Logging
-Capturing all of the information necessary to describe the state of the microservice at any given time.
+<img style="background-image: white;" src="slides/assets/ul-5.png" />
 
 
-### 2. Key metrics
-The key metrics are derived from our SLO definition and are constantly measured, forming our SLIs.
+<img style="background-image: white;" src="slides/assets/ul-6.png" />
 
 Note:
-This usually takes place in health dashboards. Those indicate how our services are behaving. 
+That's the greatest benefit of using a ubiquitous language.
+It's easier for developers to model domain into code, and it's easier for domain experts do validate the modelling.
 
-We can have insights from its past behavior easily by looking at charts and indicators.
 
-
-### 3. Alerting
-The detection of failures, as well as the detection of changes within key metrics that could lead to a failure.
+## 3.2 Domain Model
 
 Note:
-Importantly, alerts should also be triggered whenever a key metric is not
-seen. 
-
-Thresholds for key metrics can be very difficult to set without historical data, this can be accomplished by either monitoring it closely after its release or by setting up stress tests.
-
-All alerts need to be actionable. Non-actionable alerts are those that are triggered and then resolved (or ignored) by the developer(s) on call for the microservice because
-they are not important, not relevant, do not signify that anything is wrong with the microservice, or alert on a problem that cannot be resolved by the developer(s).
-
-Any alert that cannot be immediately acted on by the on-call developer(s) should be removed from the pool of alerts, reassigned to the relevant on-call rotation, or (if possible) changed so that it becomes actionable. Clear instructions are delivered with each alert.
+One of the core concepts in DDD is the Domain Model.
+A Domain Model is an unit of code that incorporates behavior and data from some business model.
+In an OOP language for example, it could be a class with methods which describe the model’s behavior according to the business rules, and also it's properties describe the data contained in the model.
 
 
-### 4. On-Call Rotations
-Scheduled rotating shifts for detecting, mitigating, and resolving any issue that arises before it causes an outage or impacts the business itself.
+```ts
+type Position = {
+  walletId: string;
+  securityId: string;
+  date: Date;
+  quantity: number;
+  marketValue: number;
+};
+
+const recalculate = (position: Position, price: number): Position => (
+  { ...position, marketValue: price * position.quantity }
+);
+```
+
+
+```ts
+class Position {
+
+  walletId: string;
+  securityId: string;
+  date: Date;
+  quantity: number;
+  marketValue: number;
+
+  // constructor...
+
+  recalculate = (position: Position, price: number) => {
+    this.marketValue = price * position.quantity;
+  };
+}
+```
+
+Note:
+The purpose of the Domain Layer is to have your domain entities and rules.
+
+
+## 3.3 Value Objects
+
+Note:
+A Value Object is an entity that has no identity, and is immutable.
+These objects have no behavior, being just bags of data used alongside your models.
+
+
+```ts
+type Point = {
+  x: number;
+  y: number;
+}
+```
