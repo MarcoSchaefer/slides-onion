@@ -109,6 +109,24 @@ The purpose of the Domain Layer is to have your domain entities and rules.
 
 
 ```ts
+type Customer = {
+  name: string;
+  birthDate: Date;
+  address: Address;
+};
+
+type Address = {
+  country: number;
+  state: number;
+  street: number;
+}
+```
+
+Note:
+You can also have a domain aggregate. An aggregate is a cluster of entities. In this case, the aggregate root is Custodian.
+
+
+```ts
 type Custodian = {
   walletId: string;
   securityId: string;
@@ -121,9 +139,6 @@ type AveragePrice = {
   value: number;
 }
 ```
-
-Note:
-You can also have a domain aggregate. An aggregate is a cluster of entities. In this case, the aggregate root is Custodian.
 
 
 ## 3.3 Value Objects
