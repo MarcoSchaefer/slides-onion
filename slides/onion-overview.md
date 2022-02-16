@@ -82,7 +82,37 @@ So, let's say you have this function for notifying some emails when a purchase h
 This function instantiates it's own dependencies, and then, sends some emails depending on the user's settings.
 Notice that this function does not use Dependency injection.
 So, how can I test it? Since it does not receive it's dependencies, I can't provide it a mock. Every time it will attempt to create a real email client. I'll need to somehow patch the underlying calls.
-So let's make a few changes:
+
+
+```ts
+const sandbox = require('sinon').createSandbox();
+sandbox.stub(SendGridAPI, 'NotifyPurchase').returns(...);
+```
+
+Note:
+You could, as a workaround, try to patch the calls and return a mock for each, but this approach still has a few problems:
+
+
+```ts
+import { notifyPurchase } from 'your-module';
+// ...
+await notifyPurchase(account, order);
+```
+
+Note:
+Whenever a developer imports your code somewhere, there's no way they can have a clue that your function depends on SendGridAPI.
+
+
+```ts
+sandbox.stub(SendGridAPI, 'NotifyPurchase').returns(...);
+```
+
+Note:
+Another problem is, if I endup renaming this NotifyPurchase method to something else, there's a high chance this patching would go unnoticed until you run the tests, since it's hard for your IDE to tell that this stub call doesn't make sense anymore.
+Also, this code isn't portable to some statically typed languages, since some compilers don't allow monkey patching.
+
+
+So let's make a few changes
 
 
 ```ts

@@ -14,7 +14,7 @@
 <img style="background-image: white;" src="slides/assets/lifecycle.jpg" />
 
 Note:
-When doing software development, one of the most important things to have in mind is that your software will always be evolving. Throughout the sprints on a Scrum based framework, during each sprint it will always be maintained, evolved, receiving new features, improvements, and bug fixes.
+When doing software development, one of the most important things to have in mind is that good software should always be evolving. Softwares that are not evolving anymore are either legacy or useless. Throughout the sprints on a Scrum based framework, during each sprint it will always be maintained, evolved, receiving new features, improvements, and bug fixes.
 
 
 <img style="background-image: white;" src="slides/assets/coupling.png" />

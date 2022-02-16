@@ -18,7 +18,7 @@ The application layer implements services (sometimes called use cases) instead o
 
 
 ```ts
-const async recalculatePositions = (
+const async recalculateAffectedUsersPositions = (
   positionRepository: PositionRepository,
   price: number,
   date: Date,

@@ -59,6 +59,11 @@ That's the greatest benefit of using a ubiquitous language.
 It's easier for developers to model domain into code, and it's easier for domain experts do validate the modelling.
 
 
+<img style="background-image: white;" src="slides/assets/ul-7.png" />
+Note:
+Also notice that your domain code should be used only to express your domain, so it should not declare things that are not from your business' domain.
+
+
 ## 3.2 Domain Model
 
 Note:
@@ -101,6 +106,24 @@ class Position {
 
 Note:
 The purpose of the Domain Layer is to have your domain entities and rules.
+
+
+```ts
+type Custodian = {
+  walletId: string;
+  securityId: string;
+  date: Date;
+  quantity: number;
+  averagePrice: AveragePrice;
+};
+
+type AveragePrice = {
+  value: number;
+}
+```
+
+Note:
+You can also have a domain aggregate. An aggregate is a cluster of entities. In this case, the aggregate root is Custodian.
 
 
 ## 3.3 Value Objects

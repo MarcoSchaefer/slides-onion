@@ -4,6 +4,8 @@
 
 [Onion Architecture explained - Building maintainable software](https://marcoatschaefer.medium.com/)
 
+[Revisiting Unit Testing and Mocking in Python](https://www.fugue.co/blog/2017-07-18-revisiting-unit-testing-and-mocking-in-python.html)
+
 
 # Bibliography
 
