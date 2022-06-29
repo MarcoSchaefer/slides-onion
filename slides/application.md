@@ -18,22 +18,29 @@ The application layer implements services (sometimes called use cases) instead o
 
 
 ```ts
-const async recalculateAffectedUsersPositions = (
-  positionRepository: PositionRepository,
-  price: number,
-  date: Date,
-  securityId: string,
-) => {
-  const positions = await positionRepository.get(securityId, date);
-  const recalculatedPositions = positions.map(p => recalculate(p, price));
+const async scheduleRide = (
+  userRepository: UserRepository,
+  rideAPI: RideAPI,
+  notificationAPI: NotificationAPI,
+  userId: string,
+  destination: Address,
+) : ScheduledRide | Error => {
+  const user = await userRepository.get(userId);
 
-  await positionRepository.update(recalculatedPositions);
+  if (!user) return Error.UserNotFound;
+  if (!user.canScheduleRide()) return Error.ActionForbidden;
+
+  if (user.shouldNotifyLovedOnes(Action.ScheduleRide)) {
+    notificationAPI.notify(user.lovedOnes);
+  }
+
+  return await rideAPI.schedule(user, destination);
 };
 ```
 
-Note: When talking about the domain layer, we saw a hypothetical Position model, which contains the data that represents a position, and we also described how to recalculate a position if the price changes.
+Note: When talking about the domain layer, we saw a hypothetical User model, which contains the data that represents an user, and we also described some of it's business rules.
 That's our domain definition. Now we want to implement a use case.
-The use case we want to implement is, given that a price changed for a particular security, I want to recalculate the positions for all users that had the same security on the provided date.
+The use case we want to implement is, given an user that wants to schedule a ride, I want to check if they can schedule it, and also would like to notify their LovedOnes if necessary.
 
 
 ## 4.2 Interfaces
@@ -44,9 +51,17 @@ So this layer needs to create interfaces that describe the dependencies they exp
 
 
 ```ts
-interface PositionRepository {
-  get: (securityId: string, date: Date) => Promise<Position[]>;
-  update: (positions: Position[]) => Promise<void>;
+interface UserRepository {
+  get: (userId: string) => Promise<User | null>;
+}
+
+interface NotificationAPI {
+  notify: (lovedOnes: LovedOne[]) => Promise<void>;
+}
+
+interface RideAPI {
+  schedule: (user: User, destination: Address) => Promise<ScheduledRide>;
+  list: (user: User, filter: Filter) => Promise<ScheduledRide[]>;
 }
 ```
 
@@ -60,15 +75,20 @@ For example, there will be situations where we need to receive a payload as an i
 
 
 ```ts
-const async listPositions = (
-  positionRepository: PositionRepository,
+const async listPreviousRides = (
+  userRepository: UserRepository,
+  rideRepository: RideRepository,
+  userId: string,
   filter: Filter,
 ): Promise<Response> => {
-  const positions = await positionRepository.get(filter);
+  const user = await userRepository.get(userId);
+  if (!user) return Error.UserNotFound;
+
+  const rides = await rideRepository.list(user, filter);
 
   return {
-    positions,
-    count: positions.length,
+    rides,
+    count: rides.length,
     filter,
   }
 };
@@ -80,18 +100,12 @@ In this case, we are receiving a DTO called filter, which contain parameters tha
 
 ```ts
 type Filter = {
-  fundId: string;
-  portfolioRelations: Set<string>;
-  productType?: ProductType;
-  assetClass?: AssetClass;
-  minDate?: string;
-  maxDate?: string;
-  securityName?: string;
-  brokerName?: string;
+  date?: Date;
+  destination?: Address;
 };
 
 type Response = {
-  positions: Position[];
+  rides: ScheduledRide[];
   count: number;
   filter: Filter;
 };

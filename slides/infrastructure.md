@@ -19,7 +19,7 @@ The Infrastructure Layer should not implement any business logic, as well as any
 
 Note: A Repository is a pattern for a collection of domain objects.
 It’s responsible for dealing with the persistence (such as a database), and acts like a collection of domain objects.
-Usually, each domain aggregate that need to be persisted will have its own repository, so you could have a repository for Position, another for Operation, and so on.
+Usually, each domain aggregate that need to be persisted will have its own repository, so you could have a repository for Users, another for Rides, and so on.
 Notice that in Onion Architecture, the database is just a infrastructure detail. The rest of your code shouldn’t worry if you are storing your data in a database, in a file, or just in memory.
 
 
@@ -30,9 +30,9 @@ The inner layers shouldn’t know if your application is being exposed through a
 
 
 ```ts
-const listPositionsHandler = (svc: PositionService, request: Request, reply: Reply) => {
+const listRidesHandler = (svc: RideService, request: Request, reply: Reply) => {
   const filter = filterFromParams(request);
-  const response = svc.listPositions(filter);
+  const response = svc.listPreviousRides(filter);
   
   const statusCode = response.count > 0 ? OK : NOT_FOUND;
   reply.status(statusCode).send(JSON.stringify(response));
@@ -50,13 +50,13 @@ If you have a repository that expects a PostgreSQL client, the main should insta
 ```ts
 const main = (config: Config): => {
   const mongoClient = await createMongoClient(config);
-  const positionRepository = newPositionRepository(mongoClient);
+  const rideRepository = newRideRepository(mongoClient);
 
-  const positionService = newPositionService(positionRepository);
-  const positionHandler = newPositionHandler(positionService);
+  const rideService = newRideService(rideRepository);
+  const rideHandler = newRideHandler(rideService);
 
   const routes: RouteOptions[] = [
-    positionRoute(positionHandler),
+    rideRoute(rideHandler),
   ];
 
   const server = newServer(routes);

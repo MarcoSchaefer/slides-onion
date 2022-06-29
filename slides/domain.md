@@ -26,7 +26,7 @@ Domain-driven design (DDD) is a software design approach that aims to model soft
 
 Note:
 One of the most important DDD guidelines is that we should have an ubiquitous language, i.e., domain experts and developers should use the same terms and entities.
-Domain aware names like Position, Operation, Security, and so on, they must mean the exactly same thing in the domain rules and in the software code.
+Domain aware names like User, Driver, Rider, Grocery, and so on, they must mean the exactly same thing in the domain rules and in the software code.
 
 
 *Domain experts should object to terms or structures that are awkward or inadequate to convey domain understanding; developers should watch for ambiguity or inconsistency that will trip up design.*
@@ -73,35 +73,22 @@ In an OOP language for example, it could be a class with methods which describe 
 
 
 ```ts
-type Position = {
-  walletId: string;
-  securityId: string;
-  date: Date;
-  quantity: number;
-  marketValue: number;
+type User = {
+  socialSecurityNumber: number;
+  name: string;
+  lovedOnes: LovedOne[];
+  paymentMethod?: PaymentMethod;
+  address?: Address;
 };
 
-const recalculate = (position: Position, price: number): Position => (
-  { ...position, marketValue: price * position.quantity }
+const canOrderFood = (user: User): boolean => (
+  user.paymentMethod && user.address;
 );
-```
 
+const canScheduleRide = (user: User): boolean => (
+  user.paymentMethod && user.hasLovedOnes();
+);
 
-```ts
-class Position {
-
-  walletId: string;
-  securityId: string;
-  date: Date;
-  quantity: number;
-  marketValue: number;
-
-  // constructor...
-
-  recalculate = (position: Position, price: number) => {
-    this.marketValue = price * position.quantity;
-  };
-}
 ```
 
 Note:
@@ -109,36 +96,76 @@ The purpose of the Domain Layer is to have your domain entities and rules.
 
 
 ```ts
-type Customer = {
+class User {
+  socialSecurityNumber: number;
   name: string;
-  birthDate: Date;
-  address: Address;
+  lovedOnes: LovedOne[];
+  paymentMethod?: PaymentMethod;
+  address?: Address;
+
+  // constructor...
+
+  canOrderFood = (): boolean => (
+    this.paymentMethod && this.address;
+  );
+  
+  canScheduleRide = (): boolean => (
+    this.paymentMethod && this.hasLovedOnes();
+  );
+}
+```
+
+
+```ts
+type User = {
+  socialSecurityNumber: number;
+  name: string;
+  lovedOnes: LovedOne[];
+  paymentMethod?: PaymentMethod;
+  address?: Address;
+  isUnderMedicalTreatment: boolean;
 };
 
+enum Action {
+  ScheduleRide,
+  OrderFood,
+}
+
+const shouldNotifyLovedOnes = (user: User, action: Action): boolean => (
+  {
+    [Action.ScheduleRide]: true,
+    [Action.OrderFood]: !user.isUnderMedicalTreatment,
+  }[action]
+);
+
+```
+
+
+```ts
+type User = {
+  socialSecurityNumber: number;
+  name: string;
+  lovedOnes: LovedOne[];
+  paymentMethod?: PaymentMethod;
+  address?: Address;
+};
+
+type LovedOne = {
+  name: string;
+  phoneNumber: string;
+}
+
+type PaymentMethod = {
+  ...
+}
+
 type Address = {
-  country: number;
-  state: number;
-  street: number;
+  ...
 }
 ```
 
 Note:
-You can also have a domain aggregate. An aggregate is a cluster of entities. In this case, the aggregate root is Custodian.
-
-
-```ts
-type Custodian = {
-  walletId: string;
-  securityId: string;
-  date: Date;
-  quantity: number;
-  averagePrice: AveragePrice;
-};
-
-type AveragePrice = {
-  value: number;
-}
-```
+You can also have a domain aggregate. An aggregate is a cluster of entities. In this case, the aggregate root is User.
 
 
 ## 3.3 Value Objects
@@ -152,5 +179,11 @@ These objects have no behavior, being just bags of data used alongside your mode
 type Point = {
   x: number;
   y: number;
+}
+
+type PhoneNumber = {
+  countryCode: number;
+  areaCode: number;
+  number: number;
 }
 ```
